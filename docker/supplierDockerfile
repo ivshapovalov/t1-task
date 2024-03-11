@@ -1,0 +1,19 @@
+FROM t1-services:latest as BUILD
+
+FROM openjdk:21-ea-21-jdk-slim
+ENV WORKDIR=/opt/app
+WORKDIR $WORKDIR
+ARG POSTGRES_SERVER
+ARG POSTGRES_PORT
+ENV JAR_FILE=$WORKDIR/t1-supplier-service.jar
+
+COPY --from=BUILD /usr/app/supplier-service/target/t1-supplier-service.jar $JAR_FILE
+COPY ./scripts/wait-for-it.sh $WORKDIR
+
+ENV POSTGRES_SERVER=${POSTGRES_SERVER}
+ENV POSTGRES_PORT=${POSTGRES_PORT}
+ENV TZ="Europe/London"
+
+EXPOSE 8081
+
+ENTRYPOINT $WORKDIR/wait-for-it.sh ${POSTGRES_SERVER}:${POSTGRES_PORT} -t 60 --strict -- java -jar -Dspring.profiles.active=production ${JAR_FILE}

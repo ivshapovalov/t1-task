@@ -1,0 +1,58 @@
+name: t1-app
+version: '3.9'
+services:
+  t1-customer-app:
+    image: t1-customer-app
+    container_name: t1-customer-app
+    build:
+      context: .
+      dockerfile: customerDockerfile
+      args:
+        SUPPLIER_APP_HOST: t1-supplier-app
+        SUPPLIER_APP_PORT: 8081
+    restart: no
+    environment:
+      APP_LOGGING_LEVEL: INFO
+    depends_on:
+      - t1-supplier-app
+    ports:
+      - "8082:8082"
+    networks:
+      - t1
+
+  t1-supplier-app:
+    image: t1-supplier-app
+    container_name: t1-supplier-app
+    build:
+      context: .
+      dockerfile: supplierDockerfile
+      args:
+        POSTGRES_SERVER: t1-supplier-db
+        POSTGRES_PORT: 5432
+    restart: no
+    environment:
+      APP_LOGGING_LEVEL: OFF
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    depends_on:
+      - t1-supplier-db
+    ports:
+      - "8081:8081"
+    networks:
+      - t1
+
+  t1-supplier-db:
+    container_name: t1-supplier-db
+    image: postgres:15.2-alpine
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+    networks:
+      - t1
+
+networks:
+  t1:
+    driver: bridge

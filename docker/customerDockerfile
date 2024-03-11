@@ -1,0 +1,23 @@
+FROM t1-services:latest as BUILD
+
+FROM openjdk:21-ea-21-jdk-slim
+
+ARG SUPPLIER_APP_HOST
+ARG SUPPLIER_APP_PORT
+
+ENV WORKDIR=/opt/app
+WORKDIR $WORKDIR
+ENV SUPPLIER_APP_HOST=${SUPPLIER_APP_HOST}
+ENV SUPPLIER_APP_PORT=${SUPPLIER_APP_PORT}
+ENV JAR_FILE=$WORKDIR/t1-customer-service.jar
+
+EXPOSE 8082
+
+COPY --from=BUILD /usr/app/customer-service/target/t1-customer-service.jar $JAR_FILE
+COPY ./scripts/wait-for-it.sh $WORKDIR
+
+ENTRYPOINT $WORKDIR/wait-for-it.sh ${SUPPLIER_APP_HOST}:${SUPPLIER_APP_PORT} -t 120 --strict -- java -jar -Dspring.profiles.active=production ${JAR_FILE}
+
+
+
+

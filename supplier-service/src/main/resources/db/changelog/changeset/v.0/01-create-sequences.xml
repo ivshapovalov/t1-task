@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="3" author="Ivan">
+        <sql>
+            create sequence products_seq start with 1 increment by 50;
+            create sequence categories_seq start with 1 increment by 50;
+            create sequence reviews_seq start with 1 increment by 50;
+        </sql>
+        <rollback>
+            <sqlFile dbms="postgresql"
+                     encoding="utf8"
+                     endDelimiter="\nGO"
+                     splitStatements="true"
+                     stripComments="true"
+                     path="db/changelog/changeset/v.0/01-drop-sequences.sql"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

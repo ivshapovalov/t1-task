@@ -1,0 +1,31 @@
+server:
+  port : 8082
+
+supplier:
+  url: http://localhost:8081/api/v1
+
+spring:
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
+      fail_on_empty_beans: false
+  output:
+    ansi:
+      enabled: ALWAYS
+  profiles:
+    default: dev
+  config:
+    group:
+      default:
+        - "dev"
+      production:
+        - "production"
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+supplier:
+  url: http://${SUPPLIER_APP_HOST}:${SUPPLIER_APP_PORT}/api/v1
+
+
